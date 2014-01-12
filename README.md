@@ -103,7 +103,7 @@ json|output json string
 
 ## Configuration Exsample(elasticsearch bulk import format. multiline format)
 
-  <store>
+	<store>
 		type file_sprintf
 		compress false
 		buffer_path /tmp/buffer/es.json.*.log
@@ -111,7 +111,7 @@ json|output json string
 		format { "index" : { "_index" : "test_index", "_type" : "test_type" } }\n%s
 		key_names json
 		file_size_limit 31457280
-  </store>
+	</store>
 
 
 ## Contributing
