@@ -75,14 +75,15 @@ module Fluent
       }
 
       if file_size > @file_size_limit
+        output_path = @path + "." + "#{Time.now.strftime('%Y%m%d%H%M%S')}"
         if @compress
-          Zlib::GzipWriter.open(@path + "." + "#{Fluent::Engine.now}" + ".gz") do |gz|
+          Zlib::GzipWriter.open(output_path + ".gz") do |gz|
             gz.mtime = File.mtime(filepath)
             gz.orig_name = filepath
             gz.write IO.binread(filepath)
           end
         else
-          FileUtils.cp filepath, @path + "." + "#{Fluent::Engine.now}"
+          FileUtils.cp filepath, output_path
         end
         FileUtils.remove_file(filepath, force = true)
       end
