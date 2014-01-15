@@ -7,9 +7,9 @@ module Fluent
     config_param :file_size_limit, :integer ,:default => 8388608
     config_param :format, :string
     config_param :compress, :bool, :default => true
-    config_param :tag_in_record, :bool, :default => false
+    config_param :include_tag_key, :bool, :default => false
     config_param :tag_key_name, :string, :default => "tag"
-    config_param :time_in_record, :bool, :default => false
+    config_param :include_time_key, :bool, :default => false
     config_param :time_key_name, :string, :default => "time"
     config_param :key_names, :string
     config_param :time_format, :string, :default => "%Y-%m-%d %H:%M:%S"
@@ -54,10 +54,10 @@ module Fluent
     end
 
     def format(tag, time, record)
-      if @tag_in_record
+      if @include_tag_key
         record[@tag_key_name] = tag
       end
-      if @time_in_record
+      if @include_time_key
         record[@time_key_name] = Time.at(time).strftime(@time_format)
       end
       [tag, time, record].to_msgpack

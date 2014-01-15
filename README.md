@@ -27,9 +27,9 @@ format|sprintf format(require)|%s
 key_names|key names comma separator(require)|ltsv
 time_format|time value output format(default:%Y-%m-%d %H:%M:%S)|%Y-%m-%d %H:%M:%S
 file_size_limit|log rotate file size limit byte(default 8388608)|31457280
-tag_in_record|tag key in record|true
+include_tag_key|tag key in record|true
 tag_key_name|tag key name(default:tag)|tag_name
-time_in_record|time key in record|true
+include_time_key|time key in record|true
 time_key_name|time key name(default:time)|timestamp
 
 ## key_names reserved words
