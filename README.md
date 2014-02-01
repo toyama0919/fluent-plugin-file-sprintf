@@ -26,11 +26,11 @@ path|output file path(require)|/tmp/test.ltsv
 format|sprintf format(require)|%s
 key_names|key names comma separator(require)|ltsv
 time_format|time value output format(default:%Y-%m-%d %H:%M:%S)|%Y-%m-%d %H:%M:%S
-file_size_limit|log rotate file size limit byte(default 8388608)|31457280
 include_tag_key|tag key in record|true
 tag_key_name|tag key name(default:tag)|tag_name
 include_time_key|time key in record|true
 time_key_name|time key name(default:time)|timestamp
+rotate_format|file rotate format(default:%Y%m%d)|%Y%m%d
 
 ## key_names reserved words
 
@@ -52,9 +52,7 @@ json|output json string
 		path /tmp/apache.json
 		format %s
 		key_names json
-		file_size_limit 31457280
 	</match>
-
 
 ## Configuration Exsample(labeled tsv format)
 
@@ -65,7 +63,6 @@ json|output json string
 		path /tmp/apache.ltsv
 		format %s
 		key_names ltsv
-		file_size_limit 31457280
 	</match>
 
 ## Configuration Exsample(message pack format)
@@ -77,7 +74,6 @@ json|output json string
 		path /tmp/apache.msgpack
 		format %s
 		key_names msgpack
-		file_size_limit 31457280
 	</match>
 
 ## Configuration Exsample(custom json format)
@@ -89,7 +85,6 @@ json|output json string
 		path /tmp/apache.json
 		format {"method":"%s","agent":"%s","referer":"%s","path":"%s","host":"%s","time":"%s","tag":"%s"}
 		key_names method,agent,referer,path,host,time,tag
-		file_size_limit 31457280
 	</match>
 
 ## Configuration Exsample(tsv format)
@@ -101,7 +96,6 @@ json|output json string
 		path /tmp/apache.tsv
 		format %s\t%s\t%s\t%s\t%s\t%s\t%s
 		key_names method,agent,referer,path,host,time,tag
-		file_size_limit 31457280
 	</match>
 
 ## Configuration Exsample(elasticsearch bulk import format. multiline format)
@@ -113,7 +107,6 @@ json|output json string
 		path /tmp/es.json
 		format { "index" : { "_index" : "test_index", "_type" : "test_type" } }\n%s
 		key_names json
-		file_size_limit 31457280
 	</store>
 
 

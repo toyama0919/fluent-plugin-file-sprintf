@@ -4,7 +4,6 @@ module Fluent
     Fluent::Plugin.register_output('file_sprintf', self)
 
     config_param :path, :string
-    config_param :file_size_limit, :integer ,:default => 8388608
     config_param :format, :string
     config_param :compress, :bool, :default => true
     config_param :include_tag_key, :bool, :default => false
@@ -13,6 +12,8 @@ module Fluent
     config_param :time_key_name, :string, :default => "time"
     config_param :key_names, :string
     config_param :time_format, :string, :default => "%Y-%m-%d %H:%M:%S"
+    config_param :rotate_format, :string, :default => "%Y%m%d"
+    config_param :file_prefix_key, :string, :default => "Time.at(time).strftime(@rotate_format)"
 
     def initialize
       super
@@ -51,6 +52,7 @@ module Fluent
       @key_names = @key_names.join(',')
       @eval_string = "%Q{#{@format}} % [#{@key_names}]"
       $log.info "format => #{@eval_string}"
+      $log.info "flush_interval => #{@flush_interval}"
     end
 
     def format(tag, time, record)
@@ -64,28 +66,45 @@ module Fluent
     end
 
     def write(chunk)
-      filepath = @path
-      file_size = 0
-      File.open(filepath,'a') { |file|
-        chunk.msgpack_each do |tag, time, record|
-          result = eval(@eval_string)
-          file.puts result
-        end
-        file_size = file.size
+      write_file(chunk)
+      compress_file
+    end
+
+    private
+    def write_file(chunk)
+      set = Set.new
+      chunk.msgpack_each do |tag, time, record|
+        set.add(eval(@file_prefix_key))
+      end
+
+      filename_hash = {}
+      set.each{|prefix|
+        filename_hash[prefix] = File.open(@path + '.' + prefix,'a')
       }
 
-      if file_size > @file_size_limit
-        output_path = @path + "." + "#{Time.now.strftime('%Y%m%d%H%M%S')}"
-        if @compress
-          Zlib::GzipWriter.open(output_path + ".gz") do |gz|
-            gz.mtime = File.mtime(filepath)
-            gz.orig_name = filepath
-            gz.write IO.binread(filepath)
+      chunk.msgpack_each do |tag, time, record|
+        result = eval(@eval_string)
+        file = filename_hash[eval(@file_prefix_key)]
+        file.puts result
+      end
+
+      filename_hash.each{|k,v|
+        v.close
+      }
+    end
+
+    def compress_file
+      if @compress
+        Dir.glob( "#{@path}.*[^gz]" ).each{ |output_path|
+          if Time.now > File.mtime(output_path) + (@flush_interval * 5)
+            Zlib::GzipWriter.open(output_path + ".gz") do |gz|
+              gz.mtime = File.mtime(output_path)
+              gz.orig_name = output_path
+              gz.write IO.binread(output_path)
+            end
+            FileUtils.remove_file(output_path, force = true)
           end
-        else
-          FileUtils.cp filepath, output_path
-        end
-        FileUtils.remove_file(filepath, force = true)
+        }
       end
     end
 
