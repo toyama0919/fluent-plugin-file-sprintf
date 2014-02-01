@@ -19,6 +19,7 @@ module Fluent
       super
       require 'zlib'
       require 'ltsv'
+      require 'set'
     end
 
     def start
