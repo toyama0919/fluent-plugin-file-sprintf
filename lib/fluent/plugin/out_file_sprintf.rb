@@ -97,14 +97,14 @@ module Fluent
     def compress_file
       if @compress
         Dir.glob( "#{@path}.*[^gz]" ).each{ |output_path|
-          if Time.now > File.mtime(output_path) + (@flush_interval * 5)
-            Zlib::GzipWriter.open(output_path + ".gz") do |gz|
-              gz.mtime = File.mtime(output_path)
-              gz.orig_name = output_path
-              gz.write IO.binread(output_path)
-            end
-            FileUtils.remove_file(output_path, force = true)
+          next if File::ftype(output_path) != 'file'
+          next if Time.now < (File.mtime(output_path) + (@flush_interval))
+          Zlib::GzipWriter.open(output_path + ".gz") do |gz|
+            gz.mtime = File.mtime(output_path)
+            gz.orig_name = output_path
+            gz.write IO.binread(output_path)
           end
+          FileUtils.remove_file(output_path, force = true)
         }
       end
     end
