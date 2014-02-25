@@ -1,4 +1,4 @@
-# fluent-plugin-file-sprintf
+# fluent-plugin-file-sprintf, a plugin for [Fluentd](http://fluentd.org)
 
 sprintf output file plugin for Fluentd.
 
