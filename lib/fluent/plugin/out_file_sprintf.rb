@@ -5,15 +5,15 @@ module Fluent
 
     config_param :path, :string
     config_param :format, :string
-    config_param :compress, :bool, :default => true
-    config_param :include_tag_key, :bool, :default => false
-    config_param :tag_key_name, :string, :default => "tag"
-    config_param :include_time_key, :bool, :default => false
-    config_param :time_key_name, :string, :default => "time"
+    config_param :compress, :bool, default: true
+    config_param :include_tag_key, :bool, default: false
+    config_param :tag_key_name, :string, default: 'tag'
+    config_param :include_time_key, :bool, default: false
+    config_param :time_key_name, :string, default: 'time'
     config_param :key_names, :string
-    config_param :time_format, :string, :default => "%Y-%m-%d %H:%M:%S"
-    config_param :rotate_format, :string, :default => "%Y%m%d"
-    config_param :file_prefix_key, :string, :default => "Time.at(time).strftime(@rotate_format)"
+    config_param :time_format, :string, default: '%Y-%m-%d %H:%M:%S'
+    config_param :rotate_format, :string, default: '%Y%m%d'
+    config_param :file_prefix_key, :string, default: 'Time.at(time).strftime(@rotate_format)'
 
     def initialize
       super
@@ -32,9 +32,9 @@ module Fluent
 
     def configure(conf)
       super
-      @key_names = @key_names.split(',').map{|key|
+      @key_names = @key_names.split(',').map do|key|
         key = key.strip
-        result = ""
+        result = ''
         if key == 'time'
           result = "Time.at(time).strftime('#{@time_format}')"
         elsif key == 'tag'
@@ -49,7 +49,7 @@ module Fluent
           result = "record['" + key + "']"
         end
         result
-      }
+      end
       @key_names = @key_names.join(',')
       @eval_string = "%Q{#{@format}} % [#{@key_names}]"
       $log.info "format => #{@eval_string}"
@@ -79,9 +79,9 @@ module Fluent
       end
 
       filename_hash = {}
-      set.each{|prefix|
-        filename_hash[prefix] = File.open(@path + '.' + prefix,'a')
-      }
+      set.each do|prefix|
+        filename_hash[prefix] = File.open(@path + '.' + prefix, 'a')
+      end
 
       chunk.msgpack_each do |tag, time, record|
         result = eval(@eval_string)
@@ -89,25 +89,24 @@ module Fluent
         file.puts result
       end
 
-      filename_hash.each{|k,v|
+      filename_hash.each do|k, v|
         v.close
-      }
+      end
     end
 
     def compress_file
       if @compress
-        Dir.glob( "#{@path}.*[^gz]" ).each{ |output_path|
-          next if File::ftype(output_path) != 'file'
+        Dir.glob("#{@path}.*[^gz]").each do |output_path|
+          next if File.ftype(output_path) != 'file'
           next if Time.now < (File.mtime(output_path) + (@flush_interval))
-          Zlib::GzipWriter.open(output_path + ".gz") do |gz|
+          Zlib::GzipWriter.open(output_path + '.gz') do |gz|
             gz.mtime = File.mtime(output_path)
             gz.orig_name = output_path
             gz.write IO.binread(output_path)
           end
           FileUtils.remove_file(output_path, force = true)
-        }
+        end
       end
     end
-
   end
 end
