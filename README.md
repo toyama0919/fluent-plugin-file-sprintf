@@ -30,6 +30,7 @@ include_tag_key|tag key in record|true
 tag_key_name|tag key name(default:tag)|tag_name
 include_time_key|time key in record|true
 time_key_name|time key name(default:time)|timestamp
+rotate|rotate (default:true)|false
 rotate_format|file rotate format(default:%Y%m%d)|%Y%m%d
 
 ## key_names reserved words

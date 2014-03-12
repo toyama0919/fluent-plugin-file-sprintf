@@ -12,6 +12,7 @@ module Fluent
     config_param :time_key_name, :string, default: 'time'
     config_param :key_names, :string
     config_param :time_format, :string, default: '%Y-%m-%d %H:%M:%S'
+    config_param :rotate, :bool, default: true
     config_param :rotate_format, :string, default: '%Y%m%d'
     config_param :file_prefix_key, :string, default: 'Time.at(time).strftime(@rotate_format)'
 
@@ -67,8 +68,12 @@ module Fluent
     end
 
     def write(chunk)
-      write_file(chunk)
-      compress_file
+      if @rotate
+        write_file(chunk)
+        compress_file if @compress
+      else
+        write_file_no_rotate(chunk)
+      end
     end
 
     private
@@ -94,18 +99,25 @@ module Fluent
       end
     end
 
+    def write_file_no_rotate(chunk)
+      file = File.open(@path, 'a')
+      chunk.msgpack_each do |tag, time, record|
+        result = eval(@eval_string)
+        file.puts result
+      end
+      file.close
+    end
+
     def compress_file
-      if @compress
-        Dir.glob("#{@path}.*[^gz]").each do |output_path|
-          next if File.ftype(output_path) != 'file'
-          next if Time.now < (File.mtime(output_path) + (@flush_interval))
-          Zlib::GzipWriter.open(output_path + '.gz') do |gz|
-            gz.mtime = File.mtime(output_path)
-            gz.orig_name = output_path
-            gz.write IO.binread(output_path)
-          end
-          FileUtils.remove_file(output_path, force = true)
+      Dir.glob("#{@path}.*[^gz]").each do |output_path|
+        next if File.ftype(output_path) != 'file'
+        next if Time.now < (File.mtime(output_path) + (@flush_interval))
+        Zlib::GzipWriter.open(output_path + '.gz') do |gz|
+          gz.mtime = File.mtime(output_path)
+          gz.orig_name = output_path
+          gz.write IO.binread(output_path)
         end
+        FileUtils.remove_file(output_path, force = true)
       end
     end
   end
