@@ -14,4 +14,8 @@ task :coverage do |_t|
   Rake::Task['test'].invoke
 end
 
+task :run do |_t|
+  sh 'fluentd -p lib/fluent/plugin -c sample/fluent.conf'
+end
+
 task default: [:build]
