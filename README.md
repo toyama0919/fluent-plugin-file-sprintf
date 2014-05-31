@@ -110,6 +110,22 @@ json|output json string
 		key_names json
 	</store>
 
+## rotate with loglotate.d exsample
+
+```bash:/etc/logrotate.d/sprintf
+/var/log/webapp.log {
+  daily
+  rotate 30
+  create 640 td-agent td-agent
+  missingok
+  notifempty
+  sharedscripts
+  postrotate
+    pid=/var/run/td-agent/td-agent.pid
+    test -s $pid && kill -USR1 "$(cat $pid)"
+  endscript
+}
+```
 
 ## Contributing
 
