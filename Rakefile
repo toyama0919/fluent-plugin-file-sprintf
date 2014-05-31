@@ -1,5 +1,5 @@
-require "bundler"
-require "bundler/gem_tasks"
+require 'bundler'
+require 'bundler/gem_tasks'
 Bundler::GemHelper.install_tasks
 require 'rake/testtask'
 
@@ -9,9 +9,9 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-task :coverage do |t|
+task :coverage do |_t|
   ENV['COVERAGE'] = '1'
-  Rake::Task["test"].invoke
+  Rake::Task['test'].invoke
 end
 
-task :default => [:build]
+task default: [:build]

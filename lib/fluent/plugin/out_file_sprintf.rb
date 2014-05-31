@@ -79,7 +79,7 @@ module Fluent
     private
     def write_file(chunk)
       set = Set.new
-      chunk.msgpack_each do |tag, time, record|
+      chunk.msgpack_each do |_tag, _time, _record|
         set.add(eval(@file_prefix_key))
       end
 
@@ -88,20 +88,20 @@ module Fluent
         filename_hash[prefix] = File.open(@path + '.' + prefix, 'a')
       end
 
-      chunk.msgpack_each do |tag, time, record|
+      chunk.msgpack_each do |_tag, _time, _record|
         result = eval(@eval_string)
         file = filename_hash[eval(@file_prefix_key)]
         file.puts result
       end
 
-      filename_hash.each do|k, v|
+      filename_hash.each do|_k, v|
         v.close
       end
     end
 
     def write_file_no_rotate(chunk)
       file = File.open(@path, 'a')
-      chunk.msgpack_each do |tag, time, record|
+      chunk.msgpack_each do |_tag, _time, _record|
         result = eval(@eval_string)
         file.puts result
       end
