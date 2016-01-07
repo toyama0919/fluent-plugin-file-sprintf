@@ -85,7 +85,7 @@ module Fluent
 
       filename_hash = {}
       set.each do|prefix|
-        filename_hash[prefix] = File.open(@path + '.' + prefix, 'a')
+        filename_hash[prefix] = File.open(@path + '.' + prefix, 'ab')
       end
 
       chunk.msgpack_each do |tag, time, record|
@@ -100,7 +100,7 @@ module Fluent
     end
 
     def write_file_no_rotate(chunk)
-      file = File.open(@path, 'a')
+      file = File.open(@path, 'ab')
       chunk.msgpack_each do |tag, time, record|
         result = eval(@eval_string)
         file.puts result
