@@ -5,3 +5,4 @@ nbproject/
 *.log
 pkg
 test/
+tmp/
