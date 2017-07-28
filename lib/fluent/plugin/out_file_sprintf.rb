@@ -1,4 +1,6 @@
 # -*- encoding : utf-8 -*-
+require 'fluent/formatter'
+
 module Fluent
   class FileSprintfOutput < Fluent::TimeSlicedOutput
     Fluent::Plugin.register_output('file_sprintf', self)
